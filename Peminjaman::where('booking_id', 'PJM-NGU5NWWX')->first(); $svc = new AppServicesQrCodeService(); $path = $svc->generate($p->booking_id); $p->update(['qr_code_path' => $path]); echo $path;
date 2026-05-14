@@ -1,0 +1,15 @@
+[90m= [39m[34;4mApp\Models\Peminjaman[39;24m {#6511
+    [34mid[39m: [35m9[39m,
+    [34mbooking_id[39m: [32m"[39m[32mPJM-NGU5NWWX[39m[32m"[39m,
+    [34mmahasiswa_id[39m: [35m4[39m,
+    [34mbuku_id[39m: [35m4[39m,
+    [34mtanggal_pinjam[39m: [32m"[39m[32m2026-04-23[39m[32m"[39m,
+    [34mtanggal_kembali_rencana[39m: [32m"[39m[32m2026-04-30[39m[32m"[39m,
+    [34mtanggal_kembali_aktual[39m: [36mnull[39m,
+    [34mstatus[39m: [32m"[39m[32mdipinjam[39m[32m"[39m,
+    [34mqr_code_path[39m: [36mnull[39m,
+    [34mapproved_at[39m: [32m"[39m[32m2026-04-23 02:09:23[39m[32m"[39m,
+    [34mapproved_by[39m: [36mnull[39m,
+    [34mcreated_at[39m: [32m"[39m[32m2026-04-23 02:09:13[39m[32m"[39m,
+    [34mupdated_at[39m: [32m"[39m[32m2026-04-23 02:09:23[39m[32m"[39m,
+  }

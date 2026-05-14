@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blueprint Aplikasi Sipusaka</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f5f7fb; color: #2b2b2b; }
+        .wrapper { max-width: 1100px; margin: 0 auto; padding: 24px; }
+        header { margin-bottom: 24px; }
+        h1, h2, h3, h4 { margin: 0 0 12px; }
+        h1 { font-size: 2.2rem; }
+        section { background: #fff; border: 1px solid #dde2ea; border-radius: 10px; margin-bottom: 20px; padding: 20px; box-shadow: 0 4px 12px rgba(38,58,77,.08); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+        .code { background: #f2f7ff; border: 1px solid #c6d7ff; border-radius: 8px; padding: 12px; overflow-x: auto; font-family: Menlo, Monaco, Consolas, monospace; font-size: 0.95rem; }
+        ul { padding-left: 1.2rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        table th, table td { border: 1px solid #d8dee6; padding: 10px; text-align: left; }
+        table th { background: #f1f5fa; }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: .85rem; }
+        .badge-primary { background: #2f67f0; color: white; }
+        .badge-secondary { background: #6c757d; color: white; }
+        .badge-success { background: #198754; color: white; }
+        .badge-warning { background: #ffc107; color: #212529; }
+        .badge-danger { background: #dc3545; color: white; }
+        .note { background: #eef7ff; border-left: 5px solid #4a8cff; padding: 10px 14px; margin: 16px 0; }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <header>
+            <h1>Blueprint Aplikasi SIPUSAKA</h1>
+            <p>Deskripsi arsitektur aplikasi perpustakaan berbasis Laravel, dengan alur publik dan admin, model, layanan denda, rute, dan halaman utama.</p>
+        </header>
+
+        <section>
+            <h2>1. Tujuan Aplikasi</h2>
+            <p>Aplikasi ini menyediakan sistem peminjaman buku perpustakaan, meliputi:</p>
+            <ul>
+                <li>Halaman publik untuk melihat katalog, meminjam buku, cek status peminjaman, dan QR peminjaman.</li>
+                <li>Panel admin untuk mengelola buku, mahasiswa, peminjaman, pengembalian, denda, dan riwayat.</li>
+                <li>Perhitungan denda otomatis untuk keterlambatan pengembalian.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>2. Struktur Model Utama</h2>
+            <div class="grid">
+                <div>
+                    <h3>Models</h3>
+                    <ul>
+                        <li><strong>Buku</strong> - data buku perpustakaan</li>
+                        <li><strong>Mahasiswa</strong> - data peminjam mahasiswa</li>
+                        <li><strong>Peminjaman</strong> - transaksi peminjaman buku</li>
+                        <li><strong>Denda</strong> - tagihan keterlambatan</li>
+                        <li><strong>History</strong> - catatan riwayat aksi admin</li>
+                        <li><strong>User</strong> - akun administrator</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Relasi Antar Model</h3>
+                    <table>
+                        <thead><tr><th>Model</th><th>Relasi</th><th>Target</th></tr></thead>
+                        <tbody>
+                            <tr><td>Peminjaman</td><td>belongsTo</td><td>Mahasiswa</td></tr>
+                            <tr><td>Peminjaman</td><td>belongsTo</td><td>Buku</td></tr>
+                            <tr><td>Peminjaman</td><td>hasOne</td><td>Denda</td></tr>
+                            <tr><td>Denda</td><td>belongsTo</td><td>Peminjaman</td></tr>
+                            <tr><td>History</td><td>belongsTo</td><td>Peminjaman</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>3. Alur Publik</h2>
+            <div class="note">
+                <strong>Publik</strong> menggunakan controller <code>App\Http\Controllers\Publik\PinjamController</code> dan <code>App\Http\Controllers\Publik\KatalogController</code>.
+            </div>
+            <ul>
+                <li><strong>Halaman Katalog</strong> - <code>/</code>, <code>/buku/{id}</code>, <code>/katalog/search</code>.</li>
+                <li><strong>Form Peminjaman</strong> - <code>/pinjam</code> untuk mengajukan peminjaman.</li>
+                <li><strong>Cek NIM</strong> - <code>/pinjam/cek-nim</code> untuk verifikasi mahasiswa.</li>
+                <li><strong>QR Peminjaman</strong> - <code>/pinjam/get-qr</code> untuk mendapatkan data dari QR.</li>
+                <li><strong>Konfirmasi</strong> - <code>/pinjam/konfirmasi/{booking_id}</code>.</li>
+                <li><strong>Cek Status</strong> - <code>/cek-status</code> dan <code>/cek-status</code> (POST) menampilkan status peminjaman.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>4. Alur Admin</h2>
+            <div class="note">
+                Admin dilindungi oleh middleware <code>admin.auth</code> dan menggunakan prefix <code>/admin</code>.</div>
+            <div class="grid">
+                <div>
+                    <h3>Auth</h3>
+                    <ul>
+                        <li><code>/admin/login</code> (GET + POST)</li>
+                        <li><code>/admin/logout</code> (POST)</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Dashboard</h3>
+                    <ul><li><code>/admin/dashboard</code></li></ul>
+                </div>
+            </div>
+            <div class="grid">
+                <div>
+                    <h3>Buku</h3>
+                    <ul>
+                        <li><code>/admin/buku</code> (CRUD)</li>
+                        <li>Export PDF / Excel</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Mahasiswa</h3>
+                    <ul>
+                        <li><code>/admin/mahasiswa</code> (CRUD)</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="grid">
+                <div>
+                    <h3>Peminjaman</h3>
+                    <ul>
+                        <li><code>/admin/peminjaman</code></li>
+                        <li><code>/admin/peminjaman/scan-qr</code></li>
+                        <li><code>/admin/peminjaman/{id}/approve</code></li>
+                        <li><code>/admin/peminjaman/{id}/tolak</code></li>
+                        <li>Export PDF / Excel</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Pengembalian</h3>
+                    <ul>
+                        <li><code>/admin/pengembalian</code></li>
+                        <li><code>/admin/pengembalian/scan-qr</code></li>
+                        <li><code>/admin/pengembalian/get-by-booking</code></li>
+                        <li><code>/admin/pengembalian/{id}/proses</code></li>
+                        <li><code>/admin/pengembalian/{id}/approve</code></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="grid">
+                <div>
+                    <h3>Denda</h3>
+                    <ul>
+                        <li><code>/admin/denda</code></li>
+                        <li><code>/admin/denda/{id}/lunas</code></li>
+                        <li>Export PDF / Excel</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>History</h3>
+                    <ul>
+                        <li><code>/admin/history</code></li>
+                        <li>Export PDF / Excel</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>5. Layanan Denda</h2>
+            <p>Service <code>App\Services\DendaService</code> menghitung denda dari perbedaan tanggal:</p>
+            <div class="code">
+                <pre>hari_terlambat = max(0, diffInDays(tanggal_kembali_aktual, tanggal_kembali_rencana))
+total_denda = hari_terlambat * 10000</pre>
+            </div>
+            <p>Layanan ini dipakai ketika admin memproses pengembalian.</p>
+        </section>
+
+        <section>
+            <h2>6. Halaman Views Utama</h2>
+            <div class="grid">
+                <div>
+                    <h4>Publik</h4>
+                    <ul>
+                        <li><code>resources/views/publik/pinjam/cek-status.blade.php</code></li>
+                        <li><code>resources/views/publik/pinjam/status.blade.php</code></li>
+                        <li><code>resources/views/publik/pinjam/konfirmasi.blade.php</code></li>
+                        <li><code>resources/views/publik/form-pinjam.blade.php</code></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Admin</h4>
+                    <ul>
+                        <li><code>resources/views/admin/denda/index.blade.php</code></li>
+                        <li><code>resources/views/admin/pengembalian/scan-qr.blade.php</code></li>
+                        <li><code>resources/views/admin/peminjaman/index.blade.php</code></li>
+                        <li><code>resources/views/admin/buku/index.blade.php</code></li>
+                        <li><code>resources/views/admin/mahasiswa/index.blade.php</code></li>
+                        <li><code>resources/views/admin/history/index.blade.php</code></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>7. Database &amp; Skema</h2>
+            <ul>
+                <li><strong>pinjamans</strong> - kolom penting: <code>mahasiswa_id</code>, <code>buku_id</code>, <code>tanggal_pinjam</code>, <code>tanggal_kembali_rencana</code>, <code>tanggal_kembali_aktual</code>, <code>status</code>, <code>booking_id</code>.</li>
+                <li><strong>dendas</strong> - kolom penting: <code>pinjaman_id</code>, <code>hari_terlambat</code>, <code>total_denda</code>, <code>status_bayar</code>, <code>dibayar_at</code>.</li>
+                <li><strong>bukus</strong> - data buku dan stok.</li>
+                <li><strong>mahasiswas</strong> - data identitas mahasiswa.</li>
+                <li><strong>histories</strong> - riwayat aksi admin terhadap peminjaman.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>8. Layout &amp; Struktur Tampilan</h2>
+            <p>Layout utama menggunakan folder:</p>
+            <ul>
+                <li><code>resources/views/layouts/admin.blade.php</code></li>
+                <li><code>resources/views/layouts/publik.blade.php</code></li>
+            </ul>
+            <p>Semua halaman publik dan admin mewarisi layout ini untuk konsistensi UI.</p>
+        </section>
+
+        <section>
+            <h2>9. Catatan Implementasi</h2>
+            <ul>
+                <li>Admin dapat memproses pengembalian lewat scan QR atau input booking ID.</li>
+                <li>Jika keterlambatan terjadi, denda otomatis dibuat atau diperbarui.</li>
+                <li>Halaman publik menampilkan status peminjaman dan detail denda jika ada.</li>
+                <li>Fitur export tersedia untuk buku, peminjaman, denda, dan history.</li>
+            </ul>
+        </section>
+    </div>
+</body>
+</html>
