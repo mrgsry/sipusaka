@@ -757,13 +757,29 @@
       </div>
     </div>
 
-    <div class="field-row full">
-      <div class="field-group">
-        <label class="field-label">Nomor Telepon / WhatsApp</label>
-        <input type="text" id="telp" placeholder="08xxxxxxxxxx" maxlength="14">
-        <div class="field-hint">Opsional · Untuk notifikasi jatuh tempo.</div>
-      </div>
+    <div class="field-row">
+        <div class="field-group">
+            <label class="field-label">Nomor Telepon / WhatsApp</label>
+            <input type="text" id="telp" placeholder="08xxxxxxxxxx" maxlength="14">
+            <div class="field-hint">Opsional · Untuk notifikasi jatuh tempo.</div>
+        </div>
+
+        <div class="field-group">
+            <label class="field-label">Kode Referral <span class="required-dot"></span></label>
+            <input type="text" id="referral_token" placeholder="Masukkan kode referral (6 digit)" maxlength="6" required oninput="validateReferralToken(this)">
+            <div class="field-hint">Wajib diisi untuk mengakses ebook setelah persetujuan.</div>
+            <div class="field-error" id="referral-error">Token referral tidak valid.</div>
+        </div>
     </div>
+
+    <!-- Alert for referral token validation -->
+    <div class="alert alert-danger d-flex align-items-center" role="alert" id="referral-alert" style="display: none !important; margin-top: 16px; padding: 12px 14px; border-radius: 10px; background: #fee2e2; border: 1.5px solid #fca5a5; color: #991b1b; font-size: 13px;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:" style="margin-right: 8px; flex-shrink: 0;">
+        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+      </svg>
+      <div id="referral-alert-text">Token referral tidak valid atau tidak ditemukan.</div>
+    </div>
+  </div>
   </div>
 
   <!-- ════════════════════════════════════
@@ -1022,6 +1038,66 @@ const BOOKS = [
   { id: 'BK-008', title: 'Manajemen Proyek IT', author: 'Kathy Schwalbe', category: 'Manajemen Informatika', stock: 3, emoji: 'M' },
 ];
 
+// ── REFERRAL TOKEN VALIDATION ──────────────
+function validateReferralToken(input) {
+  const val = input.value.trim().toUpperCase();
+  input.value = val;
+  const alertEl = document.getElementById('referral-alert');
+  const alertText = document.getElementById('referral-alert-text');
+  
+  if (val.length === 0) {
+    alertEl.style.display = 'none';
+    input.classList.remove('valid', 'error');
+    showErr('referral-error', false);
+    return;
+  }
+  
+  if (val.length < 6) {
+    input.classList.remove('valid');
+    input.classList.add('error');
+    return;
+  }
+  
+  // Validate token via API
+  fetch(`{{ route('publik.cek-nim') }}?referral_token=${val}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.success && data.data && data.data.referral_token === val) {
+        // Token valid
+        input.classList.add('valid');
+        input.classList.remove('error');
+        alertEl.style.display = 'none';
+        showErr('referral-error', false);
+      } else {
+        // Token invalid
+        input.classList.add('error');
+        input.classList.remove('valid');
+        alertText.textContent = 'Token referral tidak valid atau tidak ditemukan dalam sistem.';
+        alertEl.style.display = 'flex';
+        showErr('referral-error', true);
+      }
+    })
+    .catch(err => {
+      input.classList.add('error');
+      input.classList.remove('valid');
+      alertText.textContent = 'Error memvalidasi token referral.';
+      alertEl.style.display = 'flex';
+      showErr('referral-error', true);
+    });
+}
+
+// Helper function to set select value
+function setSelectValue(id, value) {
+  const select = document.getElementById(id);
+  if (!select) return;
+  for (let i = 0; i < select.options.length; i++) {
+    if (select.options[i].value === value || select.options[i].text === value) {
+      select.selectedIndex = i;
+      break;
+    }
+  }
+}
+
 // ── NIM LOOKUP ─────────────────────────────
 function checkNIM(input) {
   const val = input.value.replace(/\D/g, '');
@@ -1212,11 +1288,27 @@ function validateStep(step) {
     const nama = document.getElementById('nama').value.trim();
     const prodi = document.getElementById('prodi').value;
     const email = document.getElementById('email').value.trim();
+    const referralToken = document.getElementById('referral_token').value.trim();
+    
     if (nim.length < 8) { showErr('nim-error', true); ok = false; } else showErr('nim-error', false);
     if (!nama) { showErr('nama-error', true); ok = false; } else showErr('nama-error', false);
     if (!prodi) { showErr('prodi-error', true); ok = false; } else showErr('prodi-error', false);
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRe.test(email)) { showErr('email-error', true); ok = false; } else showErr('email-error', false);
+    
+    // Validate referral token
+    if (!referralToken || referralToken.length !== 6) {
+      showErr('referral-error', true);
+      document.getElementById('referral_token').classList.add('error');
+      ok = false;
+    } else {
+      showErr('referral-error', false);
+      // Check if token has valid class (was validated successfully)
+      if (!document.getElementById('referral_token').classList.contains('valid')) {
+        showErr('referral-error', true);
+        ok = false;
+      }
+    }
   }
   if (step === 2) {
     if (!selectedBook) { showErr('book-error', true); ok = false; } else showErr('book-error', false);
@@ -1275,6 +1367,7 @@ function submitForm() {
   formData.append('nama', nama);
   formData.append('jurusan', prodi);
   formData.append('no_telepon', telp);
+  formData.append('referral_token', document.getElementById('referral_token').value.trim());
   formData.append('buku_ids[]', selectedBook.id);
   formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
 

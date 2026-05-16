@@ -9,10 +9,14 @@ class Mahasiswa extends Model
     protected $table = 'mahasiswas';
 
     protected $fillable = [
-        'nama',
         'nim',
+        'nama',
         'jurusan',
         'no_telepon',
+        'angkatan',
+        'email',
+        'status',
+        'referral_token',
     ];
 
     public function pinjamans() {

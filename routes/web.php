@@ -26,12 +26,16 @@ Route::get('/ebook/stream/{id}', [KatalogController::class, 'streamPdf'])->name(
 Route::get('/pinjam', [PinjamController::class, 'index'])->name('publik.pinjam.form');
 Route::post('/pinjam', [PinjamController::class, 'store'])->name('publik.pinjam');
 Route::get('/pinjam/cek-nim', [PinjamController::class, 'cekNim'])->name('publik.cek-nim');
+Route::get('/pinjam/validate-token', [PinjamController::class, 'validateToken'])->name('publik.validate-token');
 Route::get('/pinjam/get-qr', [PinjamController::class, 'getPeminjamanByQr'])->name('publik.pinjam.get-qr');
 Route::get('/pinjam/konfirmasi/{booking_id}', [PinjamController::class, 'konfirmasi'])->name('publik.konfirmasi');
 Route::get('/cek-status', [PinjamController::class, 'cekStatus'])->name('publik.cek-status');
 Route::post('/cek-status', [PinjamController::class, 'cekStatusPost'])->name('publik.cek-status.post');
 
 Route::get('/cek-status/ajax', [PinjamController::class, 'cekStatusAjax'])->name('publik.cek-status.ajax');
+Route::get('/register', [\App\Http\Controllers\Public\RegisterController::class, 'create'])->name('publik.register.form');
+Route::post('/register', [\App\Http\Controllers\Public\RegisterController::class, 'store'])->name('publik.register.store');
+
 // =====================
 // ROUTE AUTH ADMIN
 // =====================
@@ -60,6 +64,8 @@ Route::prefix('admin')->middleware('admin.auth')->group(function () {
     Route::post('/mahasiswa', [MahasiswaController::class, 'store'])->name('admin.mahasiswa.store');
     Route::put('/mahasiswa/{id}', [MahasiswaController::class, 'update'])->name('admin.mahasiswa.update');
     Route::delete('/mahasiswa/{id}', [MahasiswaController::class, 'destroy'])->name('admin.mahasiswa.destroy');
+    Route::post('/mahasiswa/{id}/approve', [MahasiswaController::class, 'approve'])->name('admin.mahasiswa.approve');
+    Route::post('/mahasiswa/{id}/reject', [MahasiswaController::class, 'reject'])->name('admin.mahasiswa.reject');
 
     // Peminjaman
     Route::get('/peminjaman', [PeminjamanController::class, 'index'])->name('admin.peminjaman.index');

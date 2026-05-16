@@ -16,7 +16,7 @@
             --bg-page:       #f8fafc;
             --bg-white:      #ffffff;
             --text-primary:  #0f172a;
-            --text-muted:    #64748b;
+            --text-muted:    #64748b;   
             --text-light:    #94a3b8;
             --border:        #e2e8f0;
             --nav-h:         64px;
@@ -163,8 +163,14 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ route('publik.register.form') }}" class="{{ request()->routeIs('publik.register.form') ? 'active' : '' }}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                        Register
+                    </a>
+                </li>
+                <li>
                     <a href="{{ route('publik.cek-status') }}" class="{{ request()->routeIs('publik.cek-status*') ? 'active' : '' }}">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                         Cek Status Peminjaman
                     </a>
                 </li>

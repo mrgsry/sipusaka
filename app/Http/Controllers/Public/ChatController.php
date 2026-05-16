@@ -26,6 +26,33 @@ class ChatController extends Controller
             ], 404);
         }
 
+        // Check if mahasiswa status is pending
+        if ($mahasiswa->status === 'pending') {
+            return response()->json([
+                'success' => false,
+                'message' => 'NIM anda belum disetujui oleh Admin, harap tunggu',
+                'status' => 'pending',
+            ], 403);
+        }
+
+        // Check if mahasiswa status is rejected
+        if ($mahasiswa->status === 'rejected') {
+            return response()->json([
+                'success' => false,
+                'message' => 'NIM anda telah ditolak oleh Admin. Silakan hubungi admin untuk informasi lebih lanjut.',
+                'status' => 'rejected',
+            ], 403);
+        }
+
+        // Only allow approved mahasiswa to use chat
+        if ($mahasiswa->status !== 'approved') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Status akun Anda tidak valid. Silakan hubungi admin.',
+                'status' => $mahasiswa->status,
+            ], 403);
+        }
+
         // Store mahasiswa info in session
         session([
             'chat_mahasiswa_id' => $mahasiswa->id,

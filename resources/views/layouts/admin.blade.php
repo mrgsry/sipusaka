@@ -12,10 +12,7 @@
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 
     <style>
-        /* ════════════════════════════════════════
-           SIPUSAKA — MODERN ADMIN SKIN
-           Override AdminLTE dengan desain modern
-        ════════════════════════════════════════ */
+    
 
         :root {
             --sidebar-w:      240px;
@@ -535,6 +532,9 @@
         body.sidebar-collapse .main-footer {
             margin-left: 0 !important;
         }
+        body.sidebar-collapse .badge-sidebar {
+            display: none !important;
+        }
 
         /* ── RESPONSIVE ── */
         @media (max-width: 768px) {
@@ -615,11 +615,19 @@
                         </a>
                     </li>
 
+                    @php
+                        $pendingCount = \App\Models\Mahasiswa::where('status', 'pending')->count();
+                    @endphp
                     <li class="nav-item">
                         <a href="{{ route('admin.mahasiswa.index') }}"
-                           class="nav-link {{ request()->routeIs('admin.mahasiswa*') ? 'active' : '' }}">
+                           class="nav-link {{ request()->routeIs('admin.mahasiswa*') ? 'active' : '' }}" style="position:relative;">
                             <i class="nav-icon fas fa-user-graduate"></i>
                             <p>Mahasiswa</p>
+                            @if($pendingCount > 0)
+                            <span class="badge-sidebar" style="position:absolute; top:50%; right:15px; transform:translateY(-50%); font-size:9px; padding:2px 6px; border-radius:10px; background-color:#e74c3c; color:#fff; font-weight:bold; line-height:1;">
+                                {{ $pendingCount > 99 ? '99+' : $pendingCount }}
+                            </span>
+                            @endif
                         </a>
                     </li>
 
@@ -669,11 +677,21 @@
 
                     <li class="nav-header">Layanan</li>
 
+                    @php
+                        $chatCount = \App\Models\ChatSession::where('status', '!=', 'closed')
+                            ->where('is_connected_to_admin', true)
+                            ->count();
+                    @endphp
                     <li class="nav-item">
                         <a href="{{ route('admin.chat.index') }}"
-                           class="nav-link {{ request()->routeIs('admin.chat*') ? 'active' : '' }}">
+                           class="nav-link {{ request()->routeIs('admin.chat*') ? 'active' : '' }}" style="position:relative;">
                             <i class="nav-icon fas fa-comments"></i>
                             <p>Chat Mahasiswa</p>
+                            @if($chatCount > 0)
+                            <span class="badge-sidebar" style="position:absolute; top:50%; right:15px; transform:translateY(-50%); font-size:9px; padding:2px 6px; border-radius:10px; background-color:#e74c3c; color:#fff; font-weight:bold; line-height:1;">
+                                {{ $chatCount > 99 ? '99+' : $chatCount }}
+                            </span>
+                            @endif
                         </a>
                     </li>
 
@@ -700,5 +718,6 @@
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 @stack('js')
+@stack('scripts')
 </body>
 </html>

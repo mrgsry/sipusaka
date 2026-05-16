@@ -303,10 +303,14 @@
                 </p>
                 <div class="mb-3">
                     <input type="text" id="nimInput" class="form-control" placeholder="Masukkan NIM Anda" autocomplete="off">
-                    <div class="error-text" id="errorText">NIM tidak terdaftar!</div>
+                    <div class="error-text" id="errorTextNim">NIM tidak terdaftar!</div>
+                </div>
+                <div class="mb-3">
+                    <input type="text" id="tokenInput" class="form-control" placeholder="Masukkan Token Referral" autocomplete="off">
+                    <div class="error-text" id="errorTextToken">Token tidak valid!</div>
                 </div>
                 <button class="btn-verify-modal" onclick="verifyNim()">
-                    <i class="fas fa-check-circle me-2"></i>Verifikasi NIM
+                    <i class="fas fa-check-circle me-2"></i>Verifikasi NIM & Token
                 </button>
                 <button class="btn btn-link btn-sm mt-2 text-muted text-decoration-none" data-bs-dismiss="modal">
                     Nanti Saja
@@ -463,17 +467,34 @@
 
     function verifyNim() {
         const nim = document.getElementById('nimInput').value.trim();
-        const errorText = document.getElementById('errorText');
+        const token = document.getElementById('tokenInput').value.trim();
+        const errorTextNim = document.getElementById('errorTextNim');
+        const errorTextToken = document.getElementById('errorTextToken');
+        
+        let isValid = true;
+        
+        // Reset error messages
+        errorTextNim.style.display = 'none';
+        errorTextToken.style.display = 'none';
         
         if (!nim) {
-            errorText.style.display = 'block';
-            errorText.textContent = 'NIM tidak boleh kosong!';
+            errorTextNim.style.display = 'block';
+            errorTextNim.textContent = 'NIM tidak boleh kosong!';
+            isValid = false;
+        }
+        
+        if (!token) {
+            errorTextToken.style.display = 'block';
+            errorTextToken.textContent = 'Token tidak boleh kosong!';
+            isValid = false;
+        }
+        
+        if (!isValid) {
             return;
         }
 
-        errorText.style.display = 'none';
-
-        fetch('{{ route("publik.cek-nim") }}?nim=' + encodeURIComponent(nim))
+        // Send both NIM and token to the backend
+        fetch('{{ route("publik.cek-nim") }}?nim=' + encodeURIComponent(nim) + '&referral_token=' + encodeURIComponent(token))
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
@@ -483,13 +504,18 @@
                     updateButtons();
                     showToast('Verifikasi berhasil! Akses full dibuka.', 'success');
                 } else {
-                    errorText.style.display = 'block';
-                    errorText.textContent = 'NIM tidak terdaftar!';
+                    if (data.message && data.message.includes('Token')) {
+                        errorTextToken.style.display = 'block';
+                        errorTextToken.textContent = data.message;
+                    } else {
+                        errorTextNim.style.display = 'block';
+                        errorTextNim.textContent = data.message || 'NIM tidak terdaftar!';
+                    }
                 }
             })
             .catch(err => {
-                errorText.style.display = 'block';
-                errorText.textContent = 'Terjadi kesalahan koneksi.';
+                errorTextNim.style.display = 'block';
+                errorTextNim.textContent = 'Terjadi kesalahan koneksi.';
             });
     }
 
@@ -517,6 +543,11 @@
 
     // Enter key on NIM input
     document.getElementById('nimInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') verifyNim();
+    });
+    
+    // Enter key on Token input
+    document.getElementById('tokenInput').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') verifyNim();
     });
 

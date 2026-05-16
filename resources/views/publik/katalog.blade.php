@@ -781,6 +781,20 @@
                             <label class="form-label">No. Telepon <span class="text-danger">*</span></label>
                             <input type="text" id="f_telepon" class="form-control" placeholder="08xx-xxxx-xxxx">
                         </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Kode Referral <span class="text-danger">*</span></label>
+                            <input type="text" id="f_referral_token" class="form-control" placeholder="Masukkan kode referral (6 digit)" maxlength="6" oninput="validateReferralTokenModal(this)" style="text-transform: uppercase;">
+                            <small class="text-muted">Wajib diisi untuk mengakses ebook setelah persetujuan.</small>
+                            <div id="referral_token_error" class="text-danger small mt-1" style="display:none;">Token referral tidak valid.</div>
+                        </div>
+                    </div>
+
+                    <!-- Alert for referral token validation -->
+                    <div class="alert alert-danger d-flex align-items-center mt-3" role="alert" id="referral-alert-modal" style="display: none; border-radius: 10px; font-size: 13px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+                            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                        </svg>
+                        <div id="referral-alert-text-modal">Token referral tidak valid atau tidak ditemukan.</div>
                     </div>
 
                     <div class="alert alert-info mt-3 d-flex gap-2 align-items-start" style="border-radius:12px;font-size:13px">
@@ -1015,15 +1029,58 @@
         document.getElementById('bookCount').textContent = visible + ' buku';
     });
 
+    // Validation function for referral token in modal
+    function validateReferralTokenModal(input) {
+        const token = input.value.trim().toUpperCase();
+        input.value = token;
+        
+        const errorDiv = document.getElementById('referral_token_error');
+        const alertDiv = document.getElementById('referral-alert-modal');
+        
+        if (token.length === 6) {
+            // Validate token via AJAX
+            fetch(`{{ route('publik.validate-token') }}?token=${token}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.valid) {
+                        errorDiv.style.display = 'none';
+                        alertDiv.style.display = 'none';
+                        input.style.borderColor = '#059669';
+                    } else {
+                        errorDiv.style.display = 'block';
+                        alertDiv.style.display = 'flex';
+                        document.getElementById('referral-alert-text-modal').textContent = 'Token referral tidak valid atau tidak ditemukan.';
+                        input.style.borderColor = '#dc2626';
+                    }
+                })
+                .catch(() => {
+                    errorDiv.style.display = 'block';
+                    alertDiv.style.display = 'flex';
+                    input.style.borderColor = '#dc2626';
+                });
+        } else {
+            errorDiv.style.display = 'none';
+            alertDiv.style.display = 'none';
+            input.style.borderColor = '';
+        }
+    }
+
     function submitPinjam() {
         const nama     = document.getElementById('f_nama').value.trim();
         const nim      = document.getElementById('f_nim').value.trim();
         const jurusan  = document.getElementById('f_jurusan').value.trim();
         const telepon  = document.getElementById('f_telepon').value.trim();
+        const referralToken = document.getElementById('f_referral_token').value.trim().toUpperCase();
 
-        if (!nama || !nim || !jurusan || !telepon) {
+        if (!nama || !nim || !jurusan || !telepon || !referralToken) {
             document.getElementById('alertPinjam').innerHTML =
                 '<div class="alert alert-danger" style="border-radius:10px"><i class="fas fa-exclamation-circle me-2"></i>Semua field wajib diisi!</div>';
+            return;
+        }
+
+        if (referralToken.length !== 6) {
+            document.getElementById('alertPinjam').innerHTML =
+                '<div class="alert alert-danger" style="border-radius:10px"><i class="fas fa-exclamation-circle me-2"></i>Token referral harus 6 digit!</div>';
             return;
         }
 
@@ -1034,6 +1091,7 @@
         const data = {
             nama, nim, jurusan,
             no_telepon: telepon,
+            referral_token: referralToken,
             buku_ids: selectedBooks.map(b => b.id),
         };
 
