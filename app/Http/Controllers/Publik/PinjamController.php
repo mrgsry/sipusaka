@@ -210,6 +210,24 @@ class PinjamController extends Controller
         ]);
     }
 
+    public function getMahasiswaByNim($nim)
+    {
+        $mahasiswa = Mahasiswa::where('nim', $nim)->first();
+
+        if (!$mahasiswa) {
+            return response()->json(['success' => false, 'message' => 'NIM tidak ditemukan'], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'nama'       => $mahasiswa->nama,
+                'jurusan'    => $mahasiswa->jurusan,
+                'no_telepon' => $mahasiswa->no_telepon,
+            ]
+        ]);
+    }
+
     public function cekNim(Request $request)
     {
         $request->validate([

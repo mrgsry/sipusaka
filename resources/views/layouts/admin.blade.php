@@ -10,6 +10,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/admin-lte@3.2.0/dist/css/adminlte.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link rel="icon" href="{{ asset('img/sipusaka.png') }}" type="image/png">
 
     <style>
     
@@ -66,13 +67,19 @@
 
         .brand-link:hover { background: var(--sidebar-hover) !important; }
 
-        .brand-icon-box {
-            width: 32px; height: 32px;
-            background: var(--brand-blue);
-            border-radius: 9px;
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
-            font-size: 16px;
+        /* Override AdminLTE default img constraints in brand-link */
+        .brand-link img,
+        .brand-link .brand-icon-box {
+            width: 44px !important;
+            height: 44px !important;
+            max-height: none !important;
+            background: transparent !important;
+            border-radius: 0 !important;
+            object-fit: contain !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            float: none !important;
+            line-height: 1 !important;
         }
 
         .brand-text {
@@ -587,7 +594,8 @@
     <aside class="main-sidebar sidebar-dark-primary elevation-0">
         {{-- Brand --}}
         <a href="{{ route('admin.dashboard') }}" class="brand-link">
-            <div class="brand-icon-box">📚</div>
+            <img src="{{ asset('img/sipusaka.png') }}" alt="SiPusaka"
+                 style="width:56px;height:56px;max-height:none;object-fit:contain;background:transparent;flex-shrink:0;">
             <span class="brand-text">SI<span>PUSAKA</span></span>
         </a>
 

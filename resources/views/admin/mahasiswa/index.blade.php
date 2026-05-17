@@ -72,6 +72,15 @@
                                         data-email="{{ $mahasiswa->email }}">
                                         <i class="fas fa-edit"></i>
                                     </button>
+                                    @if($mahasiswa->status === 'approved' && $mahasiswa->email)
+                                        <button type="button" class="btn btn-outline-warning btn-xs btn-resend-email" 
+                                            data-url="{{ route('admin.mahasiswa.resend-email', $mahasiswa->id) }}" 
+                                            data-nama="{{ $mahasiswa->nama }}"
+                                            data-email="{{ $mahasiswa->email }}"
+                                            title="Kirim Ulang Email Informasi Akun">
+                                            <i class="fas fa-envelope"></i>
+                                        </button>
+                                    @endif
                                     <button type="button" class="btn btn-outline-info btn-xs btn-action" data-url="{{ route('admin.mahasiswa.approve', $mahasiswa->id) }}" data-action="Generate Token" data-nama="{{ $mahasiswa->nama }}">
                                         <i class="fas fa-key"></i>
                                     </button>
@@ -253,6 +262,32 @@ document.getElementById('editForm').addEventListener('submit', function(e) {
     });
 });
 
+// Handle Resend Email button
+document.querySelectorAll('.btn-resend-email').forEach(button => {
+    button.addEventListener('click', function() {
+        const url = this.getAttribute('data-url');
+        const nama = this.getAttribute('data-nama');
+        const email = this.getAttribute('data-email');
+        
+        currentAction = 'Resend Email';
+        currentUrl = url;
+        currentNama = nama;
+        
+        // Set modal content
+        document.getElementById('confirmTitle').textContent = 'Konfirmasi Kirim Ulang Email';
+        document.getElementById('confirmMessage').innerHTML = 
+            'Apakah Anda yakin ingin mengirim ulang email informasi akun ke:<br><br>' +
+            '<strong>' + nama + '</strong><br>' +
+            '<code>' + email + '</code><br><br>' +
+            'Email akan berisi informasi NIM dan Token Referral.';
+        document.getElementById('confirmBtn').className = 'btn btn-warning';
+        document.getElementById('confirmBtn').textContent = 'Kirim Email';
+        
+        // Show modal
+        confirmModal.show();
+    });
+});
+
 // Handle confirm button click
 document.getElementById('confirmBtn').addEventListener('click', function() {
     const method = currentAction === 'Delete' ? 'DELETE' : 'POST';
@@ -282,6 +317,8 @@ document.getElementById('confirmBtn').addEventListener('click', function() {
                 'Mahasiswa "' + currentNama + '" berhasil ditolak.' :
                 currentAction === 'Generate Token' ?
                 'Token berhasil di generate ulang untuk "' + currentNama + '".' :
+                currentAction === 'Resend Email' ?
+                'Email informasi akun berhasil dikirim ulang ke "' + currentNama + '".' :
                 'Mahasiswa "' + currentNama + '" berhasil dihapus.';
             
             // Add token info if approve action

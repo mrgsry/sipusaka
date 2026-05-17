@@ -1121,7 +1121,7 @@ function checkNIM(input) {
   statusEl.className = 'nim-status';
   input.classList.remove('valid', 'error');
 
-  fetch(`{{ route('publik.cek-nim') }}?nim=${val}`)
+  fetch(`/pinjam/get-mahasiswa/${val}`)
     .then(res => res.json())
     .then(data => {
       if (data.success) {

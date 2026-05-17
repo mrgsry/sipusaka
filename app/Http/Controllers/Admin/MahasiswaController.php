@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Mahasiswa;
 use Illuminate\Http\Request;
+use App\Notifications\MahasiswaApproved;
 
 class MahasiswaController extends Controller
 {
@@ -81,6 +82,9 @@ class MahasiswaController extends Controller
         $mahasiswa->status = 'approved';
         $mahasiswa->save();
 
+        // Send notification to the approved mahasiswa
+        $mahasiswa->notify(new MahasiswaApproved($mahasiswa, $mahasiswa->referral_token));
+
         return response()->json([
             'success' => true, 
             'message' => 'Mahasiswa dengan NIM ' . $mahasiswa->nim . ' telah disetujui dan diverifikasi.',
@@ -109,5 +113,50 @@ class MahasiswaController extends Controller
         $mahasiswa->update(['status' => 'rejected']);
 
         return response()->json(['success' => true, 'message' => 'Mahasiswa ditolak!']);
+    }
+
+    /**
+     * Resend approval email to mahasiswa.
+     */
+    public function resendEmail($id)
+    {
+        $mahasiswa = Mahasiswa::findOrFail($id);
+        
+        // Check if mahasiswa is approved and has email
+        if ($mahasiswa->status !== 'approved') {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Mahasiswa belum disetujui.'
+            ], 400);
+        }
+
+        if (!$mahasiswa->email) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Email mahasiswa tidak tersedia.'
+            ], 400);
+        }
+
+        if (!$mahasiswa->referral_token) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Token referral belum di-generate.'
+            ], 400);
+        }
+
+        // Send notification
+        try {
+            $mahasiswa->notify(new MahasiswaApproved($mahasiswa, $mahasiswa->referral_token));
+            
+            return response()->json([
+                'success' => true, 
+                'message' => 'Email berhasil dikirim ulang ke ' . $mahasiswa->email
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Gagal mengirim email: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

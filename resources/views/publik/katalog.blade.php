@@ -771,7 +771,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">NIM <span class="text-danger">*</span></label>
-                            <input type="text" id="f_nim" class="form-control" placeholder="Nomor Induk Mahasiswa">
+                            <input type="text" id="f_nim" class="form-control" placeholder="Nomor Induk Mahasiswa" oninput="fetchMahasiswaForModal(this.value)">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Jurusan <span class="text-danger">*</span></label>
@@ -1167,45 +1167,44 @@
         setTimeout(() => toast.remove(), 3000);
     }
 
-    let nimTimer;
+    // Auto-fill NIM for modal
+    let nimModalTimer;
+    function fetchMahasiswaForModal(nim) {
+        clearTimeout(nimModalTimer);
+        const cleanedNim = nim.trim().replace(/\D/g, ''); // Remove non-digits
 
-document.getElementById('f_nim').addEventListener('keyup', function() {
-    clearTimeout(nimTimer);
-    const nim = this.value.trim();
+        if (cleanedNim.length < 5) { // Start fetching after 5 digits
+            resetModalMahasiswaFields();
+            return;
+        }
 
-    nimTimer = setTimeout(() => {
-        if (nim.length < 5) return;
+        nimModalTimer = setTimeout(() => {
+            fetch(`/pinjam/get-mahasiswa/${cleanedNim}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('f_nama').value = data.data.nama;
+                        document.getElementById('f_jurusan').value = data.data.jurusan;
+                        document.getElementById('f_telepon').value = data.data.no_telepon || '';
+                        
+                        document.getElementById('f_nama').readOnly = true;
+                        document.getElementById('f_jurusan').readOnly = true;
+                        document.getElementById('f_telepon').readOnly = true;
+                    } else {
+                        resetModalMahasiswaFields();
+                    }
+                })
+                .catch(err => {
+                    console.error('Error fetching mahasiswa data:', err);
+                    resetModalMahasiswaFields();
+                });
+        }, 400); // Debounce to prevent too many requests
+    }
 
-        fetch(`{{ route('publik.cek-nim') }}?nim=${nim}`)
-            .then(res => res.json())
-            .then(res => {
-                if (res.success) {
-                    // AUTO FILL
-                    document.getElementById('f_nama').value     = res.data.nama;
-                    document.getElementById('f_jurusan').value  = res.data.jurusan;
-                    document.getElementById('f_telepon').value  = res.data.no_telepon;
-
-                    // OPTIONAL: lock biar tidak bisa diubah
-                    document.getElementById('f_nama').readOnly = true;
-                    document.getElementById('f_jurusan').readOnly = true;
-                    document.getElementById('f_telepon').readOnly = true;
-
-                } else {
-                    resetFieldMahasiswa();
-                }
-            })
-            .catch(() => {
-                resetFieldMahasiswa();
-            });
-
-    }, 400);
-});
-
-    function resetFieldMahasiswa() {
+    function resetModalMahasiswaFields() {
         document.getElementById('f_nama').value = '';
         document.getElementById('f_jurusan').value = '';
         document.getElementById('f_telepon').value = '';
-
         document.getElementById('f_nama').readOnly = false;
         document.getElementById('f_jurusan').readOnly = false;
         document.getElementById('f_telepon').readOnly = false;

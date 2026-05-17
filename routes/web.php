@@ -25,6 +25,7 @@ Route::get('/ebook/stream/{id}', [KatalogController::class, 'streamPdf'])->name(
 
 Route::get('/pinjam', [PinjamController::class, 'index'])->name('publik.pinjam.form');
 Route::post('/pinjam', [PinjamController::class, 'store'])->name('publik.pinjam');
+Route::get('/pinjam/get-mahasiswa/{nim}', [PinjamController::class, 'getMahasiswaByNim'])->name('publik.get-mahasiswa');
 Route::get('/pinjam/cek-nim', [PinjamController::class, 'cekNim'])->name('publik.cek-nim');
 Route::get('/pinjam/validate-token', [PinjamController::class, 'validateToken'])->name('publik.validate-token');
 Route::get('/pinjam/get-qr', [PinjamController::class, 'getPeminjamanByQr'])->name('publik.pinjam.get-qr');
@@ -66,6 +67,7 @@ Route::prefix('admin')->middleware('admin.auth')->group(function () {
     Route::delete('/mahasiswa/{id}', [MahasiswaController::class, 'destroy'])->name('admin.mahasiswa.destroy');
     Route::post('/mahasiswa/{id}/approve', [MahasiswaController::class, 'approve'])->name('admin.mahasiswa.approve');
     Route::post('/mahasiswa/{id}/reject', [MahasiswaController::class, 'reject'])->name('admin.mahasiswa.reject');
+    Route::post('/mahasiswa/{id}/resend-email', [MahasiswaController::class, 'resendEmail'])->name('admin.mahasiswa.resend-email');
 
     // Peminjaman
     Route::get('/peminjaman', [PeminjamanController::class, 'index'])->name('admin.peminjaman.index');
