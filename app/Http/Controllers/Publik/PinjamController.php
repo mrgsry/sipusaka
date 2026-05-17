@@ -11,9 +11,16 @@ use Illuminate\Http\Request;
 
 class PinjamController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return view('publik.form-pinjam');
+        $bukuId = $request->query('buku_id');
+        $buku = null;
+        
+        if ($bukuId) {
+            $buku = Buku::find($bukuId);
+        }
+        
+        return view('publik.form-pinjam', compact('buku'));
     }
 
     public function store(Request $request)
@@ -224,6 +231,7 @@ class PinjamController extends Controller
                 'nama'       => $mahasiswa->nama,
                 'jurusan'    => $mahasiswa->jurusan,
                 'no_telepon' => $mahasiswa->no_telepon,
+                'email'      => $mahasiswa->email,
             ]
         ]);
     }
