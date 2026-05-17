@@ -24,4 +24,9 @@ class Buku extends Model
     public function pinjamans() {
         return $this->hasMany(Peminjaman::class);
     }
+
+    public function reviews()
+    {
+        return $this->hasMany(BookReview::class);
+    }
 }

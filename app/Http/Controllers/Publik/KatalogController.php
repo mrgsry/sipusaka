@@ -9,10 +9,17 @@ class KatalogController extends Controller
 {
     public function index()
     {
-        $bukus = Buku::where('stok_tersedia', '>', 0)
+        $bukus = Buku::with('reviews')
+                     ->where('stok_tersedia', '>', 0)
                      ->orWhere('stok_tersedia', '=', 0)
                      ->latest()
                      ->get();
+
+        // Calculate average rating for each book
+        $bukus->each(function($buku) {
+            $buku->average_rating = $buku->reviews->avg('rating') ?: 0;
+            $buku->review_count = $buku->reviews->count();
+        });
 
         $jenisBuku = Buku::select('jenis_buku')->distinct()->pluck('jenis_buku');
 
@@ -26,7 +33,7 @@ class KatalogController extends Controller
         // Increment view count
         $buku->increment('view_count');
         
-        return response()->json($buku);
+        return view('publik.book-info', compact('buku'));
     }
 
     public function ebookReader($id)

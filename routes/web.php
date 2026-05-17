@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Publik\KatalogController;
 use App\Http\Controllers\Publik\PinjamController;
+use App\Http\Controllers\Publik\ReviewController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\BukuController;
@@ -34,6 +35,8 @@ Route::get('/cek-status', [PinjamController::class, 'cekStatus'])->name('publik.
 Route::post('/cek-status', [PinjamController::class, 'cekStatusPost'])->name('publik.cek-status.post');
 
 Route::get('/cek-status/ajax', [PinjamController::class, 'cekStatusAjax'])->name('publik.cek-status.ajax');
+Route::post('/review', [ReviewController::class, 'store'])->name('publik.review.store');
+Route::get('/review/{bukuId}', [ReviewController::class, 'getReviews'])->name('publik.review.get');
 Route::get('/register', [\App\Http\Controllers\Public\RegisterController::class, 'create'])->name('publik.register.form');
 Route::post('/register', [\App\Http\Controllers\Public\RegisterController::class, 'store'])->name('publik.register.store');
 

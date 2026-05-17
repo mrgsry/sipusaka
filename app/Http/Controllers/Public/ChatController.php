@@ -22,7 +22,7 @@ class ChatController extends Controller
         if (!$mahasiswa) {
             return response()->json([
                 'success' => false,
-                'message' => 'NIM tidak terdaftar. Silakan hubungi admin untuk mendaftar.',
+                'message' => 'NIM tidak terdaftar. Silakan daftarkan NIM anda pada bagian register.',
             ], 404);
         }
 

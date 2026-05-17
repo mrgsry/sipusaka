@@ -115,9 +115,7 @@ class MahasiswaController extends Controller
         return response()->json(['success' => true, 'message' => 'Mahasiswa ditolak!']);
     }
 
-    /**
-     * Resend approval email to mahasiswa.
-     */
+   
     public function resendEmail($id)
     {
         $mahasiswa = Mahasiswa::findOrFail($id);

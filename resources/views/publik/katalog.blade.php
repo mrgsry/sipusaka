@@ -188,6 +188,7 @@
         }
 
         /* BOOK CARD */
+        .book-card-link { text-decoration: none; color: inherit; display: block; }
         .book-card {
             background: white;
             border-radius: 16px;
@@ -283,6 +284,8 @@
             font-size: 12px;
             color: var(--navy);
             transition: all 0.2s;
+            cursor: pointer;
+            z-index: 2;
         }
         .book-card.selected .pick-btn {
             background: var(--gold);
@@ -366,6 +369,7 @@
             font-weight: 600 !important;
             border-radius: 8px !important;
             transition: all 0.2s !important;
+            z-index: 2;
         }
         .btn-primary:hover {
             background: var(--navy-mid) !important;
@@ -497,6 +501,68 @@
             .floating-cart { min-width: calc(100vw - 32px); }
             .hero-stats { gap: 20px; }
         }
+
+        /* CHAT WIDGET STYLES */
+        .chat-widget-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; }
+        .chat-toggle {
+            width: 60px; height: 60px; border-radius: 50%; background: var(--gold);
+            border: none; color: white; cursor: pointer; display: flex; align-items: center;
+            justify-content: center; box-shadow: 0 4px 12px rgba(201, 147, 10, 0.4); transition: all 0.3s ease;
+        }
+        .chat-toggle:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(201, 147, 10, 0.5); }
+        .chat-toggle svg { width: 28px; height: 28px; }
+        .chat-badge {
+            position: absolute; top: 0; right: 0; width: 20px; height: 20px; background: #dc2626;
+            border-radius: 50%; font-size: 11px; display: flex; align-items: center;
+            justify-content: center; color: white; font-weight: 600;
+        }
+        .chat-box {
+            position: absolute; bottom: 75px; right: 0; width: 350px; height: 450px;
+            background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            display: none; flex-direction: column; overflow: hidden; border: 1px solid var(--border);
+        }
+        .chat-box.open { display: flex; }
+        .chat-header {
+            padding: 1rem; background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            color: white; display: flex; align-items: center; justify-content: space-between;
+        }
+        .chat-title { font-weight: 600; font-size: 0.95rem; }
+        .chat-close {
+            background: none; border: none; color: white; cursor: pointer; width: 28px; height: 28px;
+            display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background 0.2s;
+        }
+        .chat-close:hover { background: rgba(255, 255, 255, 0.2); }
+        .chat-close svg { width: 18px; height: 18px; }
+        .chat-messages { flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; background: #f8fafc; }
+        .chat-message { max-width: 80%; display: flex; flex-direction: column; gap: 0.25rem; }
+        .chat-message.user { align-self: flex-end; }
+        .chat-message.bot, .chat-message.admin { align-self: flex-start; }
+        .chat-message-text { padding: 0.75rem 1rem; border-radius: 12px; font-size: 0.875rem; line-height: 1.5; word-wrap: break-word; }
+        .chat-message.user .chat-message-text { background: var(--gold); color: white; border-bottom-right-radius: 4px; }
+        .chat-message.bot .chat-message-text, .chat-message.admin .chat-message-text { background: white; color: var(--text); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+        .chat-message-time { font-size: 0.7rem; color: var(--muted); margin-top: 0.25rem; }
+        .chat-message.user .chat-message-time { text-align: right; }
+        .chat-status { padding: 0.5rem 1rem; background: #ecfdf5; border-top: 1px solid var(--border); display: none; }
+        .status-badge { font-size: 0.75rem; color: #059669; font-weight: 500; }
+        .chat-form { padding: 1rem; border-top: 1px solid var(--border); display: flex; gap: 0.5rem; background: white; }
+        .chat-form input[type="text"] {
+            flex: 1; padding: 0.625rem 1rem; border: 1px solid var(--border); border-radius: 12px;
+            font-size: 0.875rem; font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.2s;
+        }
+        .chat-form input[type="text"]:focus { border-color: var(--gold); }
+        .chat-form button {
+            width: 40px; height: 40px; border: none; background: var(--gold); color: white;
+            border-radius: 12px; cursor: pointer; display: flex; align-items: center;
+            justify-content: center; transition: background 0.2s;
+        }
+        .chat-form button:hover { background: var(--gold-light); }
+        .chat-form button svg { width: 18px; height: 18px; }
+        .chat-typing { display: flex; gap: 0.25rem; padding: 0.75rem 1rem; }
+        .chat-typing span { width: 8px; height: 8px; background: var(--muted); border-radius: 50%; animation: typing 1.4s infinite ease-in-out both; }
+        .chat-typing span:nth-child(1) { animation-delay: -0.32s; }
+        .chat-typing span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+        @media (max-width: 480px) { .chat-box { width: calc(100vw - 40px); height: 60vh; } }
     </style>
 </head>
 <body>
@@ -575,6 +641,16 @@
                     <button class="filter-chip" onclick="filterJenis('tersedia', this)" style="border-color:#059669;color:#059669">
                         ✅ Tersedia
                     </button>
+                    <div style="width: 1px; background: var(--border); margin: 0 4px;"></div>
+                    <button class="filter-chip" onclick="filterRating('semua', this)" id="rating-semua">
+                        ⭐ Semua Rating
+                    </button>
+                    <button class="filter-chip" onclick="filterRating('4', this)" id="rating-4">
+                        ⭐⭐⭐⭐ 4+
+                    </button>
+                    <button class="filter-chip" onclick="filterRating('3', this)" id="rating-3">
+                        ⭐⭐⭐ 3+
+                    </button>
                 </div>
             </div>
         </div>
@@ -590,29 +666,28 @@
         </div>
 
         <div class="books-grid" id="booksGrid">
-            @forelse($bukus as $buku)
-             <div class="book-card {{ $buku->stok_tersedia < 1 ? 'out-of-stock' : '' }}"
-                  id="card-{{ $buku->id }}"
-                  data-id="{{ $buku->id }}"
-                  data-nama="{{ $buku->nama_buku }}"
-                  data-penerbit="{{ $buku->penerbit }}"
-                  data-jenis="{{ $buku->jenis_buku }}"
-                  data-genre="{{ $buku->genre_buku ?? 'Fisik' }}"
-                  data-stok="{{ $buku->stok_tersedia }}"
-                  data-sampul="{{ $buku->sampul_buku ? asset('storage/'.$buku->sampul_buku) : '' }}"
-                    data-ebook="{{ $buku->file_ebook ? route('publik.ebook.baca', ['id' => $buku->id]) : '' }}">
+             @forelse($bukus as $buku)
+              <div class="book-card {{ $buku->stok_tersedia < 1 ? 'out-of-stock' : '' }}"
+                   id="card-{{ $buku->id }}"
+                   data-id="{{ $buku->id }}"
+                   data-nama="{{ $buku->nama_buku }}"
+                   data-penerbit="{{ $buku->penerbit }}"
+                   data-jenis="{{ $buku->jenis_buku }}"
+                   data-genre="{{ $buku->genre_buku ?? 'Fisik' }}"
+                   data-stok="{{ $buku->stok_tersedia }}"
+                   data-sampul="{{ $buku->sampul_buku ? asset('storage/'.$buku->sampul_buku) : '' }}"
+                   data-ebook="{{ $buku->file_ebook ? route('publik.ebook.baca', ['id' => $buku->id]) : '' }}"
+                   onclick="window.location.href='{{ route('publik.buku.show', ['id' => $buku->id]) }}';">
 
                 <div class="selected-badge" id="badge-{{ $buku->id }}">✓</div>
 
                 @if($buku->sampul_buku)
                     <img src="{{ asset('storage/'.$buku->sampul_buku) }}"
                          alt="{{ $buku->nama_buku }}" class="book-cover"
-                         data-book-id="{{ $buku->id }}"
-                         onclick="handleCoverClick(this)">
+                         data-book-id="{{ $buku->id }}">
                 @else
                     <div class="book-cover-placeholder" 
-                         data-book-id="{{ $buku->id }}"
-                         onclick="handleCoverClick(this)">📖</div>
+                         data-book-id="{{ $buku->id }}">📖</div>
                 @endif
 
                 <div class="book-info">
@@ -629,6 +704,27 @@
                             <i class="fas fa-book-open" style="color: #10b981;"></i> {{ $buku->borrow_count ?? 0 }}
                         </span>
                     </div>
+                    
+                    <!-- Rating Stars -->
+                    @if($buku->review_count > 0)
+                    <div style="display: flex; align-items: center; gap: 4px; margin: 4px 0; font-size: 11px;">
+                        <span style="color: #f59e0b; letter-spacing: 1px;">
+                            @for($i = 1; $i <= 5; $i++)
+                                @if($i <= round($buku->average_rating))
+                                    ★
+                                @else
+                                    ☆
+                                @endif
+                            @endfor
+                        </span>
+                        <span style="color: var(--muted); font-weight: 600;">
+                            {{ number_format($buku->average_rating, 1) }}
+                        </span>
+                        <span style="color: var(--muted);">
+                            ({{ $buku->review_count }})
+                        </span>
+                    </div>
+                    @endif
                     
                     <div class="book-footer">
                         @if($buku->genre_buku == 'Ebook' || $buku->genre_buku == 'Hybrid')
@@ -648,14 +744,14 @@
                                 <i class="fas fa-book-reader me-1"></i>Baca
                             </a>
                         @elseif($buku->stok_tersedia > 0)
-                            <div class="pick-btn" id="pickbtn-{{ $buku->id }}">
+                            <div class="pick-btn" id="pickbtn-{{ $buku->id }}" onclick="event.stopPropagation(); togglePilih(document.getElementById('card-{{ $buku->id }}'))">
                                 <i class="fas fa-plus"></i>
                             </div>
                         @endif
                     </div>
-                </div>
-            </div>
-            @empty
+                 </div>
+             </div>
+             @empty
             <div class="empty-state" style="grid-column:1/-1">
                 <i class="fas fa-book-open"></i>
                 <p>Belum ada buku tersedia</p>
@@ -863,21 +959,6 @@
     let currentEbookUrl = '';
     let maxPages = 0;
 
-    function handleCoverClick(element) {
-        event.stopPropagation();
-        
-        const id = element.dataset.bookId;
-        const card = document.getElementById('card-' + id);
-        const genre = card.getAttribute('data-genre');
-        const stok = parseInt(card.dataset.stok);
-        
-        if (genre === 'Ebook' || genre === 'Hybrid') {
-            window.open('/ebook/baca/' + id, '_blank');
-        } else if (stok > 0) {
-            togglePilih(card);
-        }
-    }
-
     function togglePilih(card) {
         const id = parseInt(card.dataset.id);
         const idx = selectedBooks.findIndex(b => b.id === id);
@@ -1006,11 +1087,20 @@
         document.getElementById('bookCount').textContent = visible + ' buku';
     }
 
-    document.getElementById('searchInput').addEventListener('input', function() {
-        const search = this.value.toLowerCase();
-        const activeChip = document.querySelector('.filter-chip.active');
-        const activeJenis = activeChip ? activeChip.textContent.trim() : 'Semua';
+    // State untuk filter rating
+    let currentRatingFilter = 'semua';
 
+    function filterRating(rating, btn) {
+        // Update active state
+        document.querySelectorAll('#rating-semua, #rating-4, #rating-3').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        currentRatingFilter = rating;
+
+        applyAllFilters();
+    }
+
+    function applyAllFilters() {
+        const search = document.getElementById('searchInput').value.toLowerCase();
         const cards = document.querySelectorAll('.book-card');
         let visible = 0;
 
@@ -1018,7 +1108,25 @@
             const matchSearch = card.dataset.nama.toLowerCase().includes(search)
                 || card.dataset.penerbit.toLowerCase().includes(search);
 
-            if (matchSearch) {
+            // Get rating from card
+            let cardRating = 0;
+            const ratingText = card.querySelector('[style*="color: #f59e0b"]');
+            if (ratingText) {
+                const ratingMatch = card.textContent.match(/(\d+\.\d+)\s*\(/);
+                if (ratingMatch) {
+                    cardRating = parseFloat(ratingMatch[1]);
+                }
+            }
+
+            // Check rating filter
+            let matchRating = true;
+            if (currentRatingFilter === '4') {
+                matchRating = cardRating >= 4;
+            } else if (currentRatingFilter === '3') {
+                matchRating = cardRating >= 3;
+            }
+
+            if (matchSearch && matchRating) {
                 card.style.display = '';
                 visible++;
             } else {
@@ -1027,6 +1135,11 @@
         });
 
         document.getElementById('bookCount').textContent = visible + ' buku';
+    }
+
+    // Listen to search input and apply all filters
+    document.getElementById('searchInput').addEventListener('input', function() {
+        applyAllFilters();
     });
 
     // Validation function for referral token in modal
@@ -1209,236 +1322,9 @@
         document.getElementById('f_jurusan').readOnly = false;
         document.getElementById('f_telepon').readOnly = false;
     }
-
-    // EBOOK READER FUNCTIONS
-    function openEbookReader(id) {
-        // Redirect to dedicated ebook reader page
-        window.open('/ebook/baca/' + id, '_blank');
-    }
-
-    function loadPdf(bookId) {
-        // Wait for PDF.js to be ready
-        if (typeof pdfjsLib === 'undefined') {
-            setTimeout(() => loadPdf(bookId), 1);
-            return;
-        }
-
-        const streamUrl = `/ebook/${bookId}`;
-
-        pdfjsLib.getDocument({
-            url: streamUrl,
-            withCredentials:true,
-            disableRange:true
-        }).promise.then(pdfDoc_ => {
-            pdfDoc = pdfDoc_;
-            maxPages = pdfDoc.numPages;
-            pageNum = 1;
-            
-            updateAccessStatus();
-            renderPage(pageNum);
-        }).catch(err => {
-            console.error(err);
-            document.getElementById('pdf-viewer').innerHTML = '<div class="text-white mt-5 text-center"><i class="fas fa-exclamation-triangle fa-2x text-warning"></i><p class="mt-2">Gagal memuat PDF. Pastikan file tersedia.</p></div>';
-        });
-    }
-
-    function renderPage(num) {
-        pageRendering = true;
-        
-        // Check restrictions
-        if (!isFullAccess) {
-            const limit = Math.ceil(maxPages / 4);
-            if (num > limit) {
-                showVerifyModal();
-                pageRendering = false;
-                return;
-            }
-        }
-
-        pdfDoc.getPage(num).then(page => {
-            const viewport = page.getViewport({ scale: scale });
-            const canvas = document.createElement('canvas');
-            canvas.className = 'pdf-page';
-            const context = canvas.getContext('2d');
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
-
-            const renderContext = {
-                canvasContext: context,
-                viewport: viewport
-            };
-
-            const viewer = document.getElementById('pdf-viewer');
-            viewer.innerHTML = '';
-            viewer.appendChild(canvas);
-
-            page.render(renderContext).promise.then(() => {
-                document.getElementById('pageCount').textContent = `Hal: ${num}/${maxPages}`;
-                
-                pageRendering = false;
-                if (pageNumPending !== null) {
-                    renderPage(pageNumPending);
-                    pageNumPending = null;
-                }
-            });
-        });
-    }
-
-    function queueRenderPage(num) {
-        if (pageRendering) {
-            pageNumPending = num;
-        } else {
-            renderPage(num);
-        }
-    }
-
-    function prevPage() {
-        if (pageNum <= 1) return;
-        pageNum--;
-        queueRenderPage(pageNum);
-    }
-
-    function nextPage() {
-        if (pageNum >= maxPages) return;
-        
-        if (!isFullAccess) {
-            const limit = Math.ceil(maxPages / 4);
-            if (pageNum >= limit) {
-                showVerifyModal();
-                return;
-            }
-        }
-        
-        pageNum++;
-        queueRenderPage(pageNum);
-    }
-
-    function showVerifyModal() {
-        const verifyModal = new bootstrap.Modal(document.getElementById('modalVerifyReader'));
-        verifyModal.show();
-    }
-
-    function verifyReaderNim() {
-        const nim = document.getElementById('reader_nim').value.trim();
-        if (!nim) return;
-
-        fetch(`{{ route('publik.cek-nim') }}?nim=${nim}`)
-            .then(res => res.json())
-            .then(res => {
-                if (res.success) {
-                    isFullAccess = true;
-                    bootstrap.Modal.getInstance(document.getElementById('modalVerifyReader')).hide();
-                    updateAccessStatus();
-                    showToast('Verifikasi berhasil! Akses full dibuka.', 'success');
-                    renderPage(pageNum);
-                } else {
-                    document.getElementById('verifyError').style.display = 'block';
-                }
-            })
-            .catch(() => {
-                showToast('Terjadi kesalahan koneksi.', 'warning');
-            });
-    }
-
-    function updateAccessStatus() {
-        const status = document.getElementById('accessStatus');
-        const btn = document.getElementById('btnVerifyReader');
-        if (isFullAccess) {
-            status.textContent = 'Akses: Full Version';
-            status.className = 'text-success small fw-bold';
-            btn.style.display = 'none';
-        } else {
-            const limit = Math.ceil(maxPages / 4);
-            status.textContent = `Akses: Preview (${limit} Halaman)`;
-            status.className = 'text-muted small';
-            btn.style.display = 'block';
-        }
-    }
-
-    function closeEbook() {
-        pdfDoc = null;
-        document.getElementById('pdf-viewer').innerHTML = '';
-    }
 </script>
 
-<style>
-@keyframes slideIn {
-    from { opacity: 0; transform: translateX(20px); }
-    to { opacity: 1; transform: translateX(0); }
-}
-.shake {
-    animation: shake 0.4s ease;
-}
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    20%, 60% { transform: translateX(-6px); }
-    40%, 80% { transform: translateX(6px); }
-}
-
-/* CHAT WIDGET STYLES */
-.chat-widget-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; }
-.chat-toggle {
-    width: 60px; height: 60px; border-radius: 50%; background: var(--navy);
-    border: none; color: white; cursor: pointer; display: flex; align-items: center;
-    justify-content: center; box-shadow: 0 4px 12px rgba(15,36,68,0.4); transition: all 0.3s ease;
-}
-.chat-toggle:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(15,36,68,0.5); }
-.chat-toggle svg { width: 28px; height: 28px; }
-.chat-badge {
-    position: absolute; top: 0; right: 0; width: 20px; height: 20px; background: #ef4444;
-    border-radius: 50%; font-size: 11px; display: flex; align-items: center;
-    justify-content: center; color: white; font-weight: 600;
-}
-.chat-box {
-    position: absolute; bottom: 75px; right: 0; width: 350px; height: 450px;
-    background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-    display: none; flex-direction: column; overflow: hidden; border: 1px solid var(--border);
-}
-.chat-box.open { display: flex; }
-.chat-header {
-    padding: 1rem; background: linear-gradient(135deg, var(--navy), var(--navy-mid));
-    color: white; display: flex; align-items: center; justify-content: space-between;
-}
-.chat-title { font-weight: 600; font-size: 0.95rem; }
-.chat-close {
-    background: none; border: none; color: white; cursor: pointer; width: 28px; height: 28px;
-    display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background 0.2s;
-}
-.chat-close:hover { background: rgba(255, 255, 255, 0.2); }
-.chat-close svg { width: 18px; height: 18px; }
-.chat-messages { flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; background: #f8fafc; }
-.chat-message { max-width: 80%; display: flex; flex-direction: column; gap: 0.25rem; }
-.chat-message.user { align-self: flex-end; }
-.chat-message.bot, .chat-message.admin { align-self: flex-start; }
-.chat-message-text { padding: 0.75rem 1rem; border-radius: 12px; font-size: 0.875rem; line-height: 1.5; word-wrap: break-word; }
-.chat-message.user .chat-message-text { background: var(--navy); color: white; border-bottom-right-radius: 4px; }
-.chat-message.bot .chat-message-text, .chat-message.admin .chat-message-text { background: white; color: var(--text); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
-.chat-message-time { font-size: 0.7rem; color: var(--muted); margin-top: 0.25rem; }
-.chat-message.user .chat-message-time { text-align: right; }
-.chat-status { padding: 0.5rem 1rem; background: #ecfdf5; border-top: 1px solid var(--border); display: none; }
-.status-badge { font-size: 0.75rem; color: #059669; font-weight: 500; }
-.chat-form { padding: 1rem; border-top: 1px solid var(--border); display: flex; gap: 0.5rem; background: white; }
-.chat-form input[type="text"] {
-    flex: 1; padding: 0.625rem 1rem; border: 1px solid var(--border); border-radius: 12px;
-    font-size: 0.875rem; font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.2s;
-}
-.chat-form input[type="text"]:focus { border-color: var(--navy); }
-.chat-form button {
-    width: 40px; height: 40px; border: none; background: var(--navy); color: white;
-    border-radius: 12px; cursor: pointer; display: flex; align-items: center;
-    justify-content: center; transition: background 0.2s;
-}
-.chat-form button:hover { background: var(--navy-mid); }
-.chat-form button svg { width: 18px; height: 18px; }
-.chat-typing { display: flex; gap: 0.25rem; padding: 0.75rem 1rem; }
-.chat-typing span { width: 8px; height: 8px; background: var(--muted); border-radius: 50%; animation: typing 1.4s infinite ease-in-out both; }
-.chat-typing span:nth-child(1) { animation-delay: -0.32s; }
-.chat-typing span:nth-child(2) { animation-delay: -0.16s; }
-@keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
-@media (max-width: 480px) { .chat-box { width: calc(100vw - 40px); height: 60vh; } }
-</style>
-
-{{-- CHAT WIDGET --}}
+<!-- CHAT WIDGET -->
 <div class="chat-widget-container">
     <button class="chat-toggle" id="chatToggle" aria-label="Buka chat">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1448,7 +1334,7 @@
     </button>
     <div class="chat-box" id="chatBox">
         <div class="chat-header">
-            <span class="chat-title">&#x1F4AC; SIPUSAKA Assistant</span>
+            <span class="chat-title">💬 SIPUSAKA Assistant</span>
             <button class="chat-close" id="chatClose" aria-label="Tutup chat">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -1460,7 +1346,7 @@
             <!-- Messages will be added here -->
         </div>
         <div class="chat-status" id="chatStatus">
-            <span class="status-badge">&#x1F7E2; Terhubung dengan Admin</span>
+            <span class="status-badge">🟢 Terhubung dengan Admin</span>
         </div>
         <form class="chat-form" id="chatForm">
             @csrf
@@ -1502,11 +1388,6 @@
 
     // CSRF Token
     var csrfToken = document.querySelector('input[name="_token"]') ? document.querySelector('input[name="_token"]').value : '';
-    
-    // Routes
-    var verifyNimUrl = '{{ route("chat.verify-nim") }}';
-    var sendMessageUrl = '{{ route("chat.send") }}';
-    var getMessagesUrl = '{{ route("chat.messages") }}';
 
     // Toggle chat open/close
     function toggleChat() {
